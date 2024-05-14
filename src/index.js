@@ -4,10 +4,10 @@ const dbConnect = require("./configs/databaseConnect");
 const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
 const cors = require("cors");
-
 const app = express();
 const dotenv = require("dotenv").config();
 const PORT = process.env.PORT;
+const authRoutes = require("./routes/auth.route");
 
 dbConnect();
 app.use(morgan("dev"));
@@ -15,6 +15,10 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+const api_Uri = "/api/v1/";
+
+app.use(`${api_Uri}`, authRoutes);
 
 
 // This should be the last route else any after it won't work
