@@ -1,91 +1,37 @@
 const jwt = require("jsonwebtoken");
+const asyncHandler = require("express-async-handler");
 const db = require("../models");
 const User = db.user;
-const Role = db.role;
 
-verifyToken = (req, res, next) => {
-  let token = req.session.token;
-
-  if (!token) {
-    return res.status(403).send({ message: "No token provided!" });
+const authMiddleware = asyncHandler(async (req, res, next) => {
+  let token;
+  if (req?.headers?.authorization?.startsWith("Bearer")) {
+    token = req.headers?.authorization.split(" ")[1];
+    try {
+      if (token) {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findById(decoded?.id);
+        req.user = user;
+        next();
+      }
+    } catch (err) {
+      throw new Error(
+        "Không có quyền truy cập hoặc token hết hạn. Vui lòng đăng nhập lại."
+      );
+    }
+  } else {
+    throw new Error("Không có token trong header");
   }
+});
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-    if (err) {
-      return res.status(401).send({
-        message: "Unauthorized!",
-      });
-    }
-    req.userId = decoded.id;
+const isAdmin = asyncHandler(async (req, res, next) => {
+  const { email } = req.user;
+  const adminUser = await User.findOne({ email });
+  if (adminUser.role !== "admin") {
+    throw new Error("Bạn không phải là admin nên không có quyền truy cập.");
+  } else {
     next();
-  });
-};
+  }
+});
 
-isAdmin = (req, res, next) => {
-  User.findById(req.userId).exec((err, user) => {
-    if (err) {
-      res.status(500).send({ message: err });
-      return;
-    }
-
-    Role.find(
-      {
-        _id: { $in: user.roles },
-      },
-      (err, roles) => {
-        if (err) {
-          res.status(500).send({ message: err });
-          return;
-        }
-
-        for (let i = 0; i < roles.length; i++) {
-          if (roles[i].name === "admin") {
-            next();
-            return;
-          }
-        }
-
-        res.status(403).send({ message: "Require Admin Role!" });
-        return;
-      }
-    );
-  });
-};
-
-isModerator = (req, res, next) => {
-  User.findById(req.userId).exec((err, user) => {
-    if (err) {
-      res.status(500).send({ message: err });
-      return;
-    }
-
-    Role.find(
-      {
-        _id: { $in: user.roles },
-      },
-      (err, roles) => {
-        if (err) {
-          res.status(500).send({ message: err });
-          return;
-        }
-
-        for (let i = 0; i < roles.length; i++) {
-          if (roles[i].name === "moderator") {
-            next();
-            return;
-          }
-        }
-
-        res.status(403).send({ message: "Require Moderator Role!" });
-        return;
-      }
-    );
-  });
-};
-
-const authJwt = {
-  verifyToken,
-  isAdmin,
-  isModerator,
-};
-module.exports = authJwt;
+module.exports = { authMiddleware, isAdmin };

@@ -14,12 +14,7 @@ const userSchema = new mongoose.Schema(
     passwordChangedAt: Date,
     passwordResetToken: String,
     passwordResetExpires: Date,
-    roles: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Role",
-      },
-    ],
+    roles: { type: Number, default: 0 }, // 0: user, 1: admin
   },
   {
     timestamps: true,

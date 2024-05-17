@@ -1,5 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const db = require("../models");
+const { generateRefreshToken } = require("../configs/refreshToken");
 const User = db.user;
 
 const registerUser = asyncHandler(async (req, res) => {
@@ -33,7 +34,45 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 const loginUser = asyncHandler(async (req, res) => {
-
+  const { email, password } = req.body;
+  const userFound = await User.findOne({ email });
+  try {
+    if(userFound && (await userFound.isPasswordMatched(password))) {
+      const refreshToken = await generateRefreshToken(userFound?._id);
+      const userUpdated = await User.findByIdAndUpdate(
+        userFound.id, { refreshToken }, { new: true }
+      );
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        maxAge: 72 * 60 * 60 * 1000,
+      });
+      const userInfo = {
+        id: userFound._id,
+        fullName: userFound.fullName,
+        email: userFound.email,
+        role: userFound?.roles,
+        mobile: userFound?.mobile,
+        address: userFound?.address,
+        cart: userFound?.cart,
+        token: generateRefreshToken(userFound?._id),
+      }
+      res.status(200).send({
+        status: true,
+        message: "Đăng nhập thành công.",
+        data: userInfo
+      })
+    } else {
+      return res.status(400).send({
+        status: false,
+        message: "Sai tài khoản hoặc mật khẩu. Vui lòng thử lại sau.",
+      });
+    }
+  } catch(err) {
+    return res.status(400).send({
+      status: false,
+      message: err.message,
+    });
+  }
 });
 
 module.exports = {
