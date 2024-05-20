@@ -50,7 +50,7 @@ const loginUser = asyncHandler(async (req, res) => {
         id: userFound._id,
         fullName: userFound.fullName,
         email: userFound.email,
-        role: userFound?.roles,
+        role: userFound?.role,
         mobile: userFound?.mobile,
         address: userFound?.address,
         cart: userFound?.cart,

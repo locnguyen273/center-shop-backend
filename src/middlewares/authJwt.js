@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const asyncHandler = require("express-async-handler");
 const db = require("../models");
 const User = db.user;
+const { USER_ROLE } = require("../enums/user.enum");
 
 const authMiddleware = asyncHandler(async (req, res, next) => {
   let token;
@@ -27,8 +28,11 @@ const authMiddleware = asyncHandler(async (req, res, next) => {
 const isAdmin = asyncHandler(async (req, res, next) => {
   const { email } = req.user;
   const adminUser = await User.findOne({ email });
-  if (adminUser.role !== "admin") {
-    throw new Error("Bạn không phải là admin nên không có quyền truy cập.");
+  if (adminUser.role !== USER_ROLE.admin) {
+    res.status(500).send({
+      status: false,
+      message: "Bạn không phải là admin nên không có quyền truy cập."
+    });
   } else {
     next();
   }
