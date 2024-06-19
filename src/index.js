@@ -7,8 +7,11 @@ const cors = require("cors");
 const app = express();
 const dotenv = require("dotenv").config();
 const PORT = process.env.PORT;
-const authRoutes = require("./routes/auth.route");
-const userRoutes = require("./routes/user.route");
+const {
+  authRoutes,
+  userRoutes, 
+  productRoutes,
+} = require("./routes/index");
 
 dbConnect();
 app.use(morgan("dev"));
@@ -21,6 +24,7 @@ const api_Uri = "/api/v1/";
 
 app.use(`${api_Uri}`, authRoutes);
 app.use(`${api_Uri}`, userRoutes);
+app.use(`${api_Uri}`, productRoutes);
 
 
 // This should be the last route else any after it won't work
