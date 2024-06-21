@@ -19,7 +19,7 @@ const productSchema = new mongoose.Schema({
     description: {
       type: String,
       required: [true, "Please add a description"],
-      maxlength: [10, "Product description can not be more than 10 characters"],
+      maxlength: [1000, "Product description can not be more than 1000 characters"],
       trim: true,
     },
     price: {
@@ -35,9 +35,15 @@ const productSchema = new mongoose.Schema({
       trim: true,
     },
   },
-  images: [
-    { src: { type: String, required: true } },
-    { src: { type: String, required: true } },
+  imagesBanner: {
+    type: String,
+    required: [true, "Please add a image banner"],
+    unique: [true, "Image banner already exists"],
+    trim: true,
+  },
+  imagesDetails: [
+    { url: { type: String, required: true } },
+    { url: { type: String, required: true } },
   ],
 });
 
