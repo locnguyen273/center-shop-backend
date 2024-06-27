@@ -12,7 +12,7 @@ const {
 router.post('/create-product', authMiddleware, isAdmin, createNewProduct);
 router.get('/get-list-product', getListProduct);
 router.get('/get-product/:id', getOneProduct);
-router.patch('/get-product/:id', authMiddleware, isAdmin, updateOneProduct);
-router.delete('/get-product/:id', authMiddleware, isAdmin, deleteOneProduct);
+router.patch('/update-product/:id', authMiddleware, isAdmin, updateOneProduct);
+router.delete('/delete-product/:id', authMiddleware, isAdmin, deleteOneProduct);
 
 module.exports = router;

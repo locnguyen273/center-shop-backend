@@ -37,8 +37,6 @@ const productSchema = new mongoose.Schema({
   },
   imagesBanner: {
     type: String,
-    required: [true, "Please add a image banner"],
-    unique: [true, "Image banner already exists"],
     trim: true,
   },
   imagesDetails: [

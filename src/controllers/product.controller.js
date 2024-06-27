@@ -1,6 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const validateMongoDbId = require("../middlewares/validate-mongodb-id");
 const db = require("../models");
+const { default: slugify } = require("slugify");
 const Product = db.product;
 
 const createNewProduct = asyncHandler(async (req, res) => {
@@ -68,15 +69,10 @@ const getOneProduct = asyncHandler(async (req, res) => {
   validateMongoDbId(id);
   try {
     const product = await Product.findById(id);
-    const { _id, __v, ...publicProduct } = product;
     if (product.id) {
-      const parseProduct = {
-        publicProduct,
-        id: product._id,
-      };
       res.status(200).send({
         status: true,
-        data: publicProduct,
+        data: product,
       });
     } else {
       return res.status(404).send({
@@ -92,9 +88,42 @@ const getOneProduct = asyncHandler(async (req, res) => {
   }
 });
 
-const updateOneProduct = asyncHandler(async (req, res) => {});
+const updateOneProduct = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  validateMongoDbId(id);
+  try {
+    if(req.body.name) {
+      req.body.slug = slugify(req.body.name);
+    }
+    const updateProduct = await Product.findByIdAndUpdate(id, req.body, {
+      new: true,
+    });
+    res.send({
+      message: "Đã cập nhật sản phẩm thành công.",
+      data: updateProduct,
+    });
+  } catch(error) {
+    throw new Error(error);
+  }
+});
 
-const deleteOneProduct = asyncHandler(async (req, res) => {});
+const deleteOneProduct = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  validateMongoDbId(id);
+  try {
+    const product = await Product.findById(id);
+    if(product) {
+      const deleteProduct = await Product.findOneAndDelete(id);
+      res.send({
+        message: "Đã xóa sản phẩm thành công.",
+      });
+    } else res.status(404).send({
+      message: "Sản phẩm không tồn tại.",
+    });
+  } catch (error) {
+    throw new Error(error);
+  }
+});
 
 module.exports = {
   createNewProduct,
