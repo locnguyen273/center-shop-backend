@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     mobile: { type: String, required: true },
     isBlocked: { type: Boolean, default: false },
+    status: { type: Boolean, default: true },
     cart: { type: Array, default: [] },
     address: { type: String, required: true },
     refreshToken: { type: String },

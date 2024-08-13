@@ -54,6 +54,7 @@ const loginUser = asyncHandler(async (req, res) => {
         mobile: userFound?.mobile,
         address: userFound?.address,
         cart: userFound?.cart,
+        status: userFound?.status,
         token: generateRefreshToken(userFound?._id),
       }
       res.status(200).send({

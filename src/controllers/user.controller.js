@@ -41,11 +41,30 @@ const getListUser = asyncHandler(async (req, res) => {
       .sort({ createdAt: -1 })
       .skip((currentPage - 1) * itemPerPage)
       .limit(itemPerPage);
+    let listUserSort = [];
+    listUser.forEach(item => {
+      if(item) {
+        const parseUser = {
+          id: item._id,
+          fullName: item.fullName,
+          email: item.email,
+          mobile: item.mobile,
+          isBlocked: item.isBlocked,
+          cart: item.cart,
+          address: item.address,
+          role: item.role,
+          status: item.status,
+          createdAt: item.createdAt,
+          updatedAt: item.updatedAt,
+        };
+        listUserSort.push(parseUser);
+      }
+    })
 
     res.status(200).send({
       status: true,
       total: totalUsers,
-      data: listUser,
+      data: listUserSort,
     });
   } catch (err) {
     return res.status(500).send({
@@ -70,6 +89,7 @@ const getUserById = asyncHandler(async (req, res) => {
         cart: user.cart,
         address: user.address,
         role: user.role,
+        status: user.status,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       };
