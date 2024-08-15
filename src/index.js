@@ -12,6 +12,8 @@ const {
   userRoutes, 
   productRoutes,
 } = require("./routes/index");
+const indexRouter = require('./routes/index');
+const whitelist = ['*'];
 
 dbConnect();
 app.use(morgan("dev"));
@@ -25,9 +27,26 @@ const api_Uri = "/api/v1/";
 app.use(`${api_Uri}`, authRoutes);
 app.use(`${api_Uri}`, userRoutes);
 app.use(`${api_Uri}`, productRoutes);
-app.get(`${api_Uri}/`, (req, res) => {
-  res.json({ message: "Hello world from BE."})
-})
+
+app.use((req, res, next) => {
+  const origin = req.get('referer');
+  const isWhitelisted = whitelist.find((w) => origin && origin.includes(w));
+  if (isWhitelisted) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,Content-Type,Authorization');
+    res.setHeader('Access-Control-Allow-Credentials', true);
+  }
+  // Pass to next layer of middleware
+  if (req.method === 'OPTIONS') res.sendStatus(200);
+  else next();
+});
+
+const setContext = (req, res, next) => {
+  if (!req.context) req.context = {};
+  next();
+};
+app.use('/', indexRouter);
 
 // This should be the last route else any after it won't work
 app.use("*", (req, res) => {
