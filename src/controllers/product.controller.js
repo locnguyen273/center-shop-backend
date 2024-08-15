@@ -1,5 +1,5 @@
 const asyncHandler = require("express-async-handler");
-const validateMongoDbId = require("../middlewares/validate-mongodb-id");
+const validateMongoDbId = require("../middlewares/isValidId");
 const db = require("../models");
 const { default: slugify } = require("slugify");
 const Product = db.product;
