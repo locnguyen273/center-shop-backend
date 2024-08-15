@@ -25,7 +25,9 @@ const api_Uri = "/api/v1/";
 app.use(`${api_Uri}`, authRoutes);
 app.use(`${api_Uri}`, userRoutes);
 app.use(`${api_Uri}`, productRoutes);
-
+app.get(`${api_Uri}/`, (req, res) => {
+  res.json({ message: "Hello world from BE."})
+})
 
 // This should be the last route else any after it won't work
 app.use("*", (req, res) => {
