@@ -8,18 +8,14 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     mobile: { type: String, required: true },
     isBlocked: { type: Boolean, default: false },
+    status: { type: Boolean, default: true },
     cart: { type: Array, default: [] },
     address: { type: String, required: true },
     refreshToken: { type: String },
     passwordChangedAt: Date,
     passwordResetToken: String,
     passwordResetExpires: Date,
-    roles: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Role",
-      },
-    ],
+    role: { type: Number, default: 0 }, // 0: user, 1: admin
   },
   {
     timestamps: true,
@@ -49,4 +45,4 @@ userSchema.methods.createPasswordResetToken = async function () {
   return resetToken;
 };
 
-module.exports = mongoose.model("User", userSchema);;
+module.exports = mongoose.model("User", userSchema);
